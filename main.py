@@ -9,29 +9,19 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Bot is running 🚀"
+    return "Olya is working 🚀"
 
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
-    json_data = request.get_data().decode("utf-8")
+    data = request.get_json()
 
-    update = telebot.types.Update.de_json(json_data)
-    bot.process_new_updates([update])
+    if "message" in data:
+        chat_id = data["message"]["chat"]["id"]
+        text = data["message"].get("text", "")
+
+        if text == "/start":
+            bot.send_message(chat_id, "Привет! Я Оля Ассистент 🚀")
+        else:
+            bot.send_message(chat_id, "Я на связи 👋 Напишите ваш вопрос.")
 
     return "OK", 200
-
-
-@bot.message_handler(commands=["start"])
-def start_message(message):
-    bot.send_message(
-        message.chat.id,
-        "Привет! Я Оля Ассистент 🚀"
-    )
-
-
-@bot.message_handler(func=lambda message: True)
-def handle_message(message):
-    bot.send_message(
-        message.chat.id,
-        "Я на связи 👋 Напишите ваш вопрос."
-    )
